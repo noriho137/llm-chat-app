@@ -1,0 +1,11 @@
+accelerate==1.7.0
+bitsandbytes==0.45.5
+chainlit==2.5.5
+environs==14.2.0
+chromadb==1.0.7
+langchain==0.3.25
+langchain-community==0.3.23
+langchain-huggingface==0.1.2
+pdfminer.six==20250416
+torch==2.7.0
+transformers==4.51.3
