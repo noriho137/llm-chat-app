@@ -15,13 +15,13 @@ For example, set the following.
 LOG_LEVEL=INFO
 
 # For text generation model
-MODEL_NAME=elyza/ELYZA-japanese-Llama-2-13b-fast-instruct
+MODEL_NAME_OR_PATH=elyza/ELYZA-japanese-Llama-2-13b-fast-instruct
 
 QUANTIZATION_METHOD=bitsandbytes
 
 # For Vector DB
 DATASET_DIR=./dataset
-EMBEDDING_MODEL_NAME=intfloat/multilingual-e5-large
+EMBEDDING_MODEL_NAME_OR_PATH=intfloat/multilingual-e5-large
 DB_PATH=./chroma
 CHUNK_SIZE=256
 IS_PERSIST=true

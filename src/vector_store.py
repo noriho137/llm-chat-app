@@ -23,14 +23,14 @@ def extract_text(target_file):
 
 
 class VectorStore:
-    def __init__(self, embedding_model_name, db_path='./db', chunk_size=256, is_persist=True):
+    def __init__(self, embedding_model_name_or_path, db_path='./db', chunk_size=256, is_persist=True):
         """
         Initialize client.
         """
         logger.debug('start')
 
         self.collection = None
-        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name)
+        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model_name_or_path)
         self.db_path = db_path
         self.chunk_size = chunk_size
         self.is_persist = is_persist

@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 env.read_env()
 log_level = env.log_level('LOG_LEVEL')
-model_name = env.str('MODEL_NAME')
+model_name_or_path = env.str('MODEL_NAME_OR_PATH')
 quantization_method = env.str('QUANTIZATION_METHOD', None)
-embedding_model_name = env.str('EMBEDDING_MODEL_NAME')
+embedding_model_name_or_path = env.str('EMBEDDING_MODEL_NAME_OR_PATH')
 db_path = env.str('DB_PATH', './db')
 chunk_size = env.int('CHUNK_SIZE', 256)
 is_persist = env.bool('IS_PERSIST', False)
@@ -42,11 +42,11 @@ async def on_chat_start():
 
     if shared_text_generator is None:
         # Initialize text generation model
-        shared_text_generator = TextGenerator(model_name_or_path=model_name,
+        shared_text_generator = TextGenerator(model_name_or_path=model_name_or_path,
                                               quantization_method=quantization_method)
     if shared_vector_store is None:
         # Load vector DB
-        shared_vector_store = VectorStore(embedding_model_name=embedding_model_name,
+        shared_vector_store = VectorStore(embedding_model_name_or_path=embedding_model_name_or_path,
                                           db_path=db_path,
                                           chunk_size=chunk_size,
                                           is_persist=is_persist)

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 env.read_env()
 log_level = env.log_level('LOG_LEVEL')
 dataset_dir = env.str('DATASET_DIR')
-embedding_model_name = env.str('EMBEDDING_MODEL_NAME')
+embedding_model_name_or_path = env.str('EMBEDDING_MODEL_NAME_OR_PATH')
 db_path = env.str('DB_PATH', './db')
 chunk_size = env.int('CHUNK_SIZE', 256)
 is_persist = env.bool('IS_PERSIST', False)
@@ -34,7 +34,7 @@ def main():
     target_files = glob.glob(os.path.join(dataset_dir, '*'))
 
     # Initialize client
-    vector_store = VectorStore(embedding_model_name=embedding_model_name,
+    vector_store = VectorStore(embedding_model_name_or_path=embedding_model_name_or_path,
                                db_path=db_path,
                                chunk_size=chunk_size,
                                is_persist=is_persist)
