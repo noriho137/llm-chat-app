@@ -2,7 +2,7 @@ import logging
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import BitsAndBytesConfig, GPTQConfig
+from transformers import BitsAndBytesConfig
 
 logger = logging.getLogger(__name__)
 
