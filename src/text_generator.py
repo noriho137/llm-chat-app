@@ -94,17 +94,19 @@ class TextGenerator:
         """
         logger.debug('start')
 
+        self.model.eval()
+
         with torch.no_grad():
             token_ids = self.tokenizer.encode(prompt,
                                               add_special_tokens=False,
                                               return_tensors='pt')
 
-        output_ids = self.model.generate(
-            token_ids.to(self.model.device),
-            max_new_tokens=MAX_NEW_TOKENS,
-            pad_token_id=self.tokenizer.pad_token_id,
-            eos_token_id=self.tokenizer.eos_token_id,
-        )
+            output_ids = self.model.generate(
+                token_ids.to(self.model.device),
+                max_new_tokens=MAX_NEW_TOKENS,
+                pad_token_id=self.tokenizer.pad_token_id,
+                eos_token_id=self.tokenizer.eos_token_id,
+            )
 
         output = self.tokenizer.decode(output_ids.tolist()[0][token_ids.size(1):],
                                        skip_special_tokens=True)
