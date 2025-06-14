@@ -38,6 +38,9 @@ shared_vector_store = None
 @cl.on_chat_start
 async def on_chat_start():
     logger.debug('start')
+
+    await cl.Message(content='モデルをロード中です。しばらくお待ちください。').send()
+
     global shared_text_generator, shared_vector_store
 
     if shared_text_generator is None:
@@ -56,7 +59,7 @@ async def on_chat_start():
     cl.user_session.set('text_generator', shared_text_generator)
     cl.user_session.set('vector_store', shared_vector_store)
 
-    await cl.Message(content='ようこそ！何か入力してください。').send()
+    await cl.Message(content='ようこそ！ご用件は何でしょうか？').send()
     logger.debug('end')
 
 
