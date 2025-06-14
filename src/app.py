@@ -60,6 +60,7 @@ async def on_chat_start():
     cl.user_session.set('vector_store', shared_vector_store)
 
     await cl.Message(content='ようこそ！ご用件は何でしょうか？').send()
+
     logger.debug('end')
 
 
@@ -81,4 +82,5 @@ async def on_message(message):
     # Generate an answer
     answer = text_generator.run(query, context)
     await cl.Message(content=answer).send()
+
     logger.debug('end')
