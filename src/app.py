@@ -57,9 +57,12 @@ async def on_chat_start():
     await message.send()
 
     with cl.Step(name='モデルをロード', type='llm'):
+        # Load text generation model
         text_generator = await asyncio.to_thread(load_text_generator,
                                                  model_name_or_path,
                                                  quantization_method)
+
+        # Load vector DB
         vector_store = await asyncio.to_thread(load_vector_store,
                                                embedding_model_name_or_path,
                                                db_path,
