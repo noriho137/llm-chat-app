@@ -100,7 +100,7 @@ class VectorStore:
         logger.debug('end')
         return
 
-    def retrieve(self, query, n_results=5):
+    def retrieve(self, query, top_k=5):
         """
         Vector search
         """
@@ -109,7 +109,7 @@ class VectorStore:
         embedded_query = self.embeddings.embed_query(query)
         results = self.collection.query(
             query_embeddings=embedded_query,
-            n_results=n_results,
+            n_results=top_k,
         )
 
         logger.debug('end')

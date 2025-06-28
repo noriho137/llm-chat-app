@@ -23,6 +23,8 @@ db_path = env.str('DB_PATH', './db')
 chunk_size = env.int('CHUNK_SIZE', 256)
 is_persist = env.bool('IS_PERSIST', False)
 collection_name = env.str('COLLECTION_NAME', 'my_collection')
+top_k = env.int('RETRIEVE_TOP_K', 5)
+
 
 # Set log level
 logger.setLevel(log_level)
@@ -87,7 +89,7 @@ async def on_message(message):
 
     # Retrieve text relevant to the query by vector search
     query = message.content
-    results = vector_store.retrieve(query=query, n_results=5)
+    results = vector_store.retrieve(query=query, top_k=top_k)
 
     # Format the text so that it can be passed to the prompt
     context = make_context(results)

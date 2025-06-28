@@ -51,6 +51,7 @@ DB_PATH=./chroma
 CHUNK_SIZE=256
 IS_PERSIST=true
 COLLECTION_NAME=my_collection
+RETRIEVE_TOP_K=5
 ```
 `DATASET_DIR`, `DB_PATH` and `COLLECTION_NAME` should be modified to suit your environment.
 
