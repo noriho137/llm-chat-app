@@ -56,28 +56,34 @@ async def on_chat_start():
     message = cl.Message(content='モデルをロード中です。しばらくお待ちください。')
     await message.send()
 
-    with cl.Step(name='モデルをロード', type='llm'):
-        # Load text generation model
-        text_generator = await asyncio.to_thread(load_text_generator,
-                                                 model_name_or_path,
-                                                 quantization_method)
+    try:
+        with cl.Step(name='モデルをロード', type='llm'):
+            # Load text generation model
+            text_generator = await asyncio.to_thread(load_text_generator,
+                                                     model_name_or_path,
+                                                     quantization_method)
 
-        # Load vector DB
-        vector_store = await asyncio.to_thread(load_vector_store,
-                                               embedding_model_name_or_path,
-                                               db_path,
-                                               chunk_size,
-                                               is_persist,
-                                               collection_name)
+            # Load vector DB
+            vector_store = await asyncio.to_thread(load_vector_store,
+                                                   embedding_model_name_or_path,
+                                                   db_path,
+                                                   chunk_size,
+                                                   is_persist,
+                                                   collection_name)
 
-    # Save in session
-    cl.user_session.set('text_generator', text_generator)
-    cl.user_session.set('vector_store', vector_store)
+        # Save in session
+        cl.user_session.set('text_generator', text_generator)
+        cl.user_session.set('vector_store', vector_store)
 
-    message.content = 'モデルのロードが完了しました。'
-    await message.update()
+        message.content = 'モデルのロードが完了しました。'
+        await message.update()
 
-    await cl.Message(content='ようこそ！ご用件は何でしょうか？').send()
+        await cl.Message(content='ようこそ！ご用件は何でしょうか？').send()
+    except Exception as e:
+        logger.exception('Exception occurs in loading model.')
+        message.content = f'モデルのロード中にエラーが発生しました。\n{e}'
+        await message.update()
+        await cl.Message(content='').send()
 
     logger.debug('end')
 
@@ -89,6 +95,16 @@ async def on_message(message):
     # Get from session
     text_generator = cl.user_session.get('text_generator')
     vector_store = cl.user_session.get('vector_store')
+
+    if text_generator is None:
+        logger.error('text_generator is not in the session.')
+        await cl.Message(content='システムエラーが発生しました。').send()
+        return
+
+    if vector_store is None:
+        logger.error('vector_store is not in the session.')
+        await cl.Message(content='システムエラーが発生しました。').send()
+        return
 
     # Retrieve text relevant to the query by vector search
     query = message.content
