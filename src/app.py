@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 import chainlit as cl
@@ -28,36 +29,48 @@ logger.setLevel(log_level)
 logging.getLogger('text_generator').setLevel(log_level)
 logging.getLogger('vector_store').setLevel(log_level)
 
-# Text generation model
-shared_text_generator = None
 
-# Vector DB
-shared_vector_store = None
+@cl.cache
+def load_text_generator(cached_model_name_or_path, cached_quantization_method):
+    text_generator = TextGenerator(model_name_or_path=cached_model_name_or_path,
+                                   quantization_method=cached_quantization_method)
+    return text_generator
+
+
+@cl.cache
+def load_vector_store(cached_embedding_model_name_or_path, cached_db_path, cached_chunk_size, cached_is_persist, cached_collection_name):
+    vector_store = VectorStore(embedding_model_name_or_path=cached_embedding_model_name_or_path,
+                               db_path=cached_db_path,
+                               chunk_size=cached_chunk_size,
+                               is_persist=cached_is_persist)
+    vector_store.get_collection(collection_name=cached_collection_name)
+    return vector_store
 
 
 @cl.on_chat_start
 async def on_chat_start():
     logger.debug('start')
 
-    await cl.Message(content='モデルをロード中です。しばらくお待ちください。').send()
+    message = cl.Message(content='モデルをロード中です。しばらくお待ちください。')
+    await message.send()
 
-    global shared_text_generator, shared_vector_store
-
-    if shared_text_generator is None:
-        # Initialize text generation model
-        shared_text_generator = TextGenerator(model_name_or_path=model_name_or_path,
-                                              quantization_method=quantization_method)
-    if shared_vector_store is None:
-        # Load vector DB
-        shared_vector_store = VectorStore(embedding_model_name_or_path=embedding_model_name_or_path,
-                                          db_path=db_path,
-                                          chunk_size=chunk_size,
-                                          is_persist=is_persist)
-        shared_vector_store.get_collection(collection_name=collection_name)
+    with cl.Step(name='モデルをロード', type='llm'):
+        text_generator = await asyncio.to_thread(load_text_generator,
+                                                 model_name_or_path,
+                                                 quantization_method)
+        vector_store = await asyncio.to_thread(load_vector_store,
+                                               embedding_model_name_or_path,
+                                               db_path,
+                                               chunk_size,
+                                               is_persist,
+                                               collection_name)
 
     # Save in session
-    cl.user_session.set('text_generator', shared_text_generator)
-    cl.user_session.set('vector_store', shared_vector_store)
+    cl.user_session.set('text_generator', text_generator)
+    cl.user_session.set('vector_store', vector_store)
+
+    message.content = 'モデルのロードが完了しました。'
+    await message.update()
 
     await cl.Message(content='ようこそ！ご用件は何でしょうか？').send()
 
