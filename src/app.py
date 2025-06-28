@@ -106,15 +106,26 @@ async def on_message(message):
         await cl.Message(content='システムエラーが発生しました。').send()
         return
 
-    # Retrieve text relevant to the query by vector search
-    query = message.content
-    results = vector_store.retrieve(query=query, top_k=top_k)
+    try:
+        query = message.content
 
-    # Format the text so that it can be passed to the prompt
-    context = make_context(results)
+        with cl.Step(name='回答を生成中', type='llm'):
+            # Retrieve text relevant to the query by vector search
+            results = await asyncio.to_thread(vector_store.retrieve,
+                                              query=query,
+                                              top_k=top_k)
 
-    # Generate an answer
-    answer = text_generator.run(query, context)
-    await cl.Message(content=answer).send()
+            # Format the text so that it can be passed to the prompt
+            context = make_context(results)
+
+            # Generate an answer
+            answer = await asyncio.to_thread(text_generator.run,
+                                             query=query,
+                                             context=context)
+
+        await cl.Message(content=answer).send()
+    except Exception as e:
+        logger.exception('Exception occurs in generating answer for query: {message.content}')
+        await cl.Message(content=f'回答の生成中にエラーが発生しました。\n{e}').send()
 
     logger.debug('end')
