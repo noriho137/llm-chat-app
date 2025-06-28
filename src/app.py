@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 env.read_env()
-log_level = env.log_level('LOG_LEVEL')
+log_level = env.log_level('LOG_LEVEL', logging.INFO)
 model_name_or_path = env.str('MODEL_NAME_OR_PATH')
 quantization_method = env.str('QUANTIZATION_METHOD', None)
 embedding_model_name_or_path = env.str('EMBEDDING_MODEL_NAME_OR_PATH')
