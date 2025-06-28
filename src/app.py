@@ -33,19 +33,19 @@ logging.getLogger('vector_store').setLevel(log_level)
 
 
 @cl.cache
-def load_text_generator(cached_model_name_or_path, cached_quantization_method):
-    text_generator = TextGenerator(model_name_or_path=cached_model_name_or_path,
-                                   quantization_method=cached_quantization_method)
+def load_text_generator(model_name_or_path, quantization_method):
+    text_generator = TextGenerator(model_name_or_path=model_name_or_path,
+                                   quantization_method=quantization_method)
     return text_generator
 
 
 @cl.cache
-def load_vector_store(cached_embedding_model_name_or_path, cached_db_path, cached_chunk_size, cached_is_persist, cached_collection_name):
-    vector_store = VectorStore(embedding_model_name_or_path=cached_embedding_model_name_or_path,
-                               db_path=cached_db_path,
-                               chunk_size=cached_chunk_size,
-                               is_persist=cached_is_persist)
-    vector_store.get_collection(collection_name=cached_collection_name)
+def load_vector_store(embedding_model_name_or_path, db_path, chunk_size, is_persist, collection_name):
+    vector_store = VectorStore(embedding_model_name_or_path=embedding_model_name_or_path,
+                               db_path=db_path,
+                               chunk_size=chunk_size,
+                               is_persist=is_persist)
+    vector_store.get_collection(collection_name=collection_name)
     return vector_store
 
 
