@@ -100,6 +100,22 @@ class VectorStore:
         logger.debug('end')
         return
 
+    def delete_collection(self, collection_name):
+        """
+        Delete the collection.
+        NOTE: This is a logical delete.
+        """
+        logger.debug('start')
+
+        try:
+            self.client.delete_collection(name=collection_name)
+            logger.info(f'Delete collection: {collection_name}.')
+        except Exception:
+            logger.exception(f'Exception occurs in delete collection: {collection_name}.')
+
+        logger.debug('end')
+        return
+
     def retrieve(self, query, top_k=5):
         """
         Vector search
