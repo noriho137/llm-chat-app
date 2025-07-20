@@ -24,9 +24,15 @@ def make_context(results):
     Convert the results of a vector search into a bulleted format for embedding as reference information in a prompt.
     """
     logger.debug('start')
-    context = [doc for doc in results['documents'][0]]
-    context = '\n* '.join(context)
-    context = '* ' + context
+
+    context = None
+
+    docs = results['documents'][0]
+    if docs:
+        context = [doc for doc in docs]
+        context = '\n* '.join(context)
+        context = '* ' + context
+
     logger.debug('end')
     return context
 
