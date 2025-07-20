@@ -11,10 +11,9 @@ B_INST = '[INST]'
 E_INST = '[/INST]'
 B_SYS = '<<SYS>>\n'
 E_SYS = '\n<</SYS>>\n\n'
-DEFAULT_SYSTEM_PROMPT = 'あなたは誠実で優秀な日本人のアシスタントです。質問にできるだけ正確に答えてください。'
-DEFAULT_SYSTEM_RAG_PROMPT = 'あなたは誠実で優秀な日本人のアシスタントです。参考情報を元にして質問にできるだけ正確に答えてください。'
-PROMPT = '## 質問:\n{question}'
-RAG_PROMPT = '## 参考情報:\n{context}\n\n## 質問:\n{question}'
+DEFAULT_SYSTEM_PROMPT = 'あなたは誠実で優秀な日本人のアシスタントです。'
+PROMPT = '質問にできるだけ正確に答えてください。\n\n## 質問:\n{question}'
+RAG_PROMPT = '参考情報を元にして質問にできるだけ正確に答えてください。\n\n## 参考情報:\n{context}\n\n## 質問:\n{question}'
 
 # Maximum length of newly generated tokens
 MAX_NEW_TOKENS = 256
@@ -69,17 +68,15 @@ class TextGenerator:
 
         if context is None:
             # Without reference information
-            _system_prompt = DEFAULT_SYSTEM_PROMPT
             _prompt = PROMPT.format(question=query)
         else:
             # With reference information (RAG)
-            _system_prompt = DEFAULT_SYSTEM_RAG_PROMPT
             _prompt = RAG_PROMPT.format(context=context, question=query)
 
         prompt = '{bos_token}{b_inst} {system}{prompt} {e_inst} '.format(
             bos_token=self.tokenizer.bos_token,
             b_inst=B_INST,
-            system=f'{B_SYS}{_system_prompt}{E_SYS}',
+            system=f'{B_SYS}{DEFAULT_SYSTEM_PROMPT}{E_SYS}',
             prompt=_prompt,
             e_inst=E_INST,
         )
