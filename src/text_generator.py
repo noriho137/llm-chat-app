@@ -48,7 +48,7 @@ class TextGenerator:
         self.messages = None
         self.generate_args = {}
 
-        # Load tokenizer config
+        # Load message config
         if message_config_path:
             with open(message_config_path, 'r') as f:
                 message_config = json.load(f)
