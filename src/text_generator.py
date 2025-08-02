@@ -1,3 +1,4 @@
+import json
 import logging
 
 import torch
@@ -7,16 +8,8 @@ from transformers import BitsAndBytesConfig
 logger = logging.getLogger(__name__)
 
 # Prompt related definitions
-B_INST = '[INST]'
-E_INST = '[/INST]'
-B_SYS = '<<SYS>>\n'
-E_SYS = '\n<</SYS>>\n\n'
-DEFAULT_SYSTEM_PROMPT = 'あなたは誠実で優秀な日本人のアシスタントです。'
 PROMPT = '質問にできるだけ正確に答えてください。\n\n## 質問:\n{question}'
 RAG_PROMPT = '参考情報を元にして質問にできるだけ正確に答えてください。\n\n## 参考情報:\n{context}\n\n## 質問:\n{question}'
-
-# Maximum length of newly generated tokens
-MAX_NEW_TOKENS = 256
 
 
 def make_context(results):
@@ -38,16 +31,32 @@ def make_context(results):
 
 
 class TextGenerator:
-    def __init__(self, model_name_or_path, quantization_method=None):
+    def __init__(self, model_name_or_path, message_config_path=None, quantization_method=None):
         """
         Setup LLM.
         """
         logger.debug('start')
         logger.info(f'model_name_or_path={model_name_or_path}, '
+                    f'message_config_path={message_config_path}, '
                     f'quantization_method={quantization_method}')
 
         # Load pretrained tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+
+        self.chat_template = None
+        self.add_generation_prompt = None
+        self.messages = None
+        self.generate_args = {}
+
+        # Load tokenizer config
+        if message_config_path:
+            with open(message_config_path, 'r') as f:
+                message_config = json.load(f)
+
+            self.chat_template = message_config.get('chat_template')
+            self.add_generation_prompt = message_config.get('add_generation_prompt')
+            self.messages = message_config.get('messages')
+            self.generate_args = message_config.get('generate_args')
 
         # Quantization settings
         if quantization_method == 'bitsandbytes':
@@ -66,11 +75,11 @@ class TextGenerator:
         logger.debug('end')
         return
 
-    def make_prompt(self, query, context=None):
+    def make_messages(self, query, context=None):
         """
-        Make a prompt.
+        Make messages
         """
-        logger.debug('start')
+        messages = self.messages.copy()
 
         if context is None:
             # Without reference information
@@ -79,12 +88,26 @@ class TextGenerator:
             # With reference information (RAG)
             _prompt = RAG_PROMPT.format(context=context, question=query)
 
-        prompt = '{bos_token}{b_inst} {system}{prompt} {e_inst} '.format(
-            bos_token=self.tokenizer.bos_token,
-            b_inst=B_INST,
-            system=f'{B_SYS}{DEFAULT_SYSTEM_PROMPT}{E_SYS}',
-            prompt=_prompt,
-            e_inst=E_INST,
+        for message in messages:
+            if message['role'] == 'user':
+                message['content'] = _prompt
+
+        return messages
+
+    def make_prompt(self, query, context=None):
+        """
+        Make a prompt.
+        """
+        logger.debug('start')
+
+        messages = self.make_messages(query, context)
+        logger.debug(f'messages={messages}')
+
+        prompt = self.tokenizer.apply_chat_template(
+            conversation=messages,
+            chat_template=self.chat_template,
+            tokenize=False,
+            add_generation_prompt=self.add_generation_prompt
         )
         logger.debug(prompt)
 
@@ -106,9 +129,7 @@ class TextGenerator:
 
             output_ids = self.model.generate(
                 token_ids.to(self.model.device),
-                max_new_tokens=MAX_NEW_TOKENS,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
+                **self.generate_args
             )
 
         output = self.tokenizer.decode(output_ids.tolist()[0][token_ids.size(1):],

@@ -18,6 +18,7 @@ env.read_env()
 log_level = env.log_level('LOG_LEVEL', logging.INFO)
 model_name_or_path = env.str('MODEL_NAME_OR_PATH')
 quantization_method = env.str('QUANTIZATION_METHOD', None)
+message_config_path = env.str('MESSAGE_CONFIG_PATH', None)
 embedding_model_name_or_path = env.str('EMBEDDING_MODEL_NAME_OR_PATH')
 db_path = env.str('DB_PATH', './db')
 chunk_size = env.int('CHUNK_SIZE', 256)
@@ -33,8 +34,9 @@ logging.getLogger('vector_store').setLevel(log_level)
 
 
 @cl.cache
-def load_text_generator(model_name_or_path, quantization_method):
+def load_text_generator(model_name_or_path, message_config_path, quantization_method):
     text_generator = TextGenerator(model_name_or_path=model_name_or_path,
+                                   message_config_path=message_config_path,
                                    quantization_method=quantization_method)
     return text_generator
 
@@ -61,6 +63,7 @@ async def on_chat_start():
             # Load text generation model
             text_generator = await asyncio.to_thread(load_text_generator,
                                                      model_name_or_path,
+                                                     message_config_path,
                                                      quantization_method)
 
             # Load vector DB

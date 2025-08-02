@@ -1,0 +1,13 @@
+{
+  "chat_template": "{% if messages[0]['role'] == 'system' %}{% set loop_messages = messages[1:] %}{% set system_message = messages[0]['content'] %}{% else %}{% set loop_messages = messages %}{% set system_message = false %}{% endif %}{% for message in loop_messages %}{% if loop.index0 == 0 and system_message %}{{ bos_token }}[INST] <<SYS>>\n{{ system_message }}\n<</SYS>>\n\n{% endif %}{% if message['role'] == 'user' %}{{ message['content'] + ' [/INST] ' }}{% elif message['role'] == 'assistant' %}{{ message['content'] | trim + ' ' + eos_token }}{% endif %}{% endfor %}",
+  "add_generation_prompt": false,
+  "messages": [
+    {"role": "system", "content": "あなたは誠実で優秀な日本人のアシスタントです。"},
+    {"role": "user", "content": ""}
+  ],
+  "generate_args": {
+    "max_new_tokens": 256,
+    "pad_token_id": 2,
+    "eos_token_id": 2
+  }
+}
