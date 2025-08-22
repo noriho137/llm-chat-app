@@ -70,6 +70,7 @@ class TextGenerator:
         # Load pretrained model
         self.model = AutoModelForCausalLM.from_pretrained(model_name_or_path,
                                                           torch_dtype='auto',
+                                                          device_map='auto',
                                                           quantization_config=quantization_config)
 
         logger.debug('end')
