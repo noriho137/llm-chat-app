@@ -2,10 +2,7 @@
   "chat_template": null,
   "add_generation_prompt": true,
   "messages": [
-    {
-      "role": "user",
-      "content": ""
-    }
+    {"role": "user", "content": ""}
   ],
   "generate_args": {
     "max_new_tokens": 256
