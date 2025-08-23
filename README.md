@@ -42,6 +42,7 @@ LOG_LEVEL=INFO
 
 # For text generation model
 MODEL_NAME_OR_PATH=elyza/ELYZA-japanese-Llama-2-13b-fast-instruct
+MESSAGE_CONFIG_PATH=config/elyza/ELYZA-japanese-Llama-2-13b-fast-instruct.json
 QUANTIZATION_METHOD=bitsandbytes
 
 # For Vector DB
